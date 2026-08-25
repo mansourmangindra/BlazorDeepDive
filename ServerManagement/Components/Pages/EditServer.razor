@@ -1,5 +1,7 @@
 ﻿@page "/servers/{id:int}"
 
+@inject NavigationManager NavigationManager
+
 <h3>Edit Server</h3>
 <br />
 <br />
@@ -51,12 +53,21 @@
         server ??= ServersRepository.GetServerById(this.id);
     }
 
-    private void Submit()
+    private async Task Submit()
     {
-        if(server != null)
+        if (server == null)
+            return;
+
+        ServersRepository.UpdateServer(server.ServerId, server);
+        try
         {
-            
             ServersRepository.UpdateServer(server.ServerId, server);
+            NavigationManager.NavigateTo("/servers");
+        }
+        catch (Exception ex) when (ex is not NavigationException)
+        {
+            // Handle actual database or business logic errors here
+            // The 'when' filter ensures Blazor's redirect signal passes through safely
         }
     }
 
